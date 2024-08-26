@@ -1,1 +1,0 @@
-[{"id":1,"name":"Test1","environments":[{"id":1,"name":"Prod","dataCenters":[{"id":1,"name":"Adgar","links":[{"id":1,"title":"Title","url":"http://url.example.com","passwordLink":"http://url.example.com?password","description":"Description"}]}]},{"id":2,"name":"LAB","dataCenters":[]}]}]

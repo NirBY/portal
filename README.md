@@ -1,14 +1,21 @@
-# ![Portal](https://iharsh234.github.io/WebApp/images/demo/demo_landing.JPG)
 # Portal
 <table>
 <tr>
 <td>
-  A webapp using Quandl API to display history of stock growth in a given period of time. It helps predict the growth of stocks from the  charts of stock performace in any period of time. It helps to judge stocks, with the principle of momentum investing, which returns 1% per month on average.
+<div>A simple portal web app for joining all company websites in one place.</div>
+<br/>
 </td>
 </tr>
 </table>
 
+* It is supporting in memory credentials & Active Directory login page
+* It is divided into category -> DataCenter -> Environment structure
+* It uses H2 DB for fast responses
+* 
 
-## Demo
-Here is a working live demo : 
+# User Level Example
+# ![Portal](https://github.com/NirBY/portal/blob/master/images/user_level.png?raw=true)
+
+
+
 
