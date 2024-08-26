@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header>
+    Login
+</header>
+
+<section class="login-section">
+    <h2>Login Using your Active Directory Account</h2>
+
+    <!-- Show a logout success message if the user was redirected after logging out -->
+    <div th:if="${param.logout}" class="logout-message">
+        <p>You have been logged out successfully.</p>
+    </div>
+
+    <div th:if="${param.sessionExpired}">
+        <p class="error">Your session has expired. Please log in again.</p>
+    </div>
+
+    <form th:action="@{/login}" method="post" class="login-form">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="login-button">Login</button>
+        </div>
+    </form>
+</section>
+
+<!-- Show an error message if login fails -->
+<div th:if="${param.error}" class="error-message">
+    <p th:text="'Login failed: ' + ${session.SPRING_SECURITY_LAST_EXCEPTION.message}">Login failed.</p>
+    <p th:text="'Error details: ' + ${session.SPRING_SECURITY_LAST_EXCEPTION}"></p>
+</div>
+
+<footer>
+    &copy; 2024 Site Directory
+</footer>
+</body>
+</html>

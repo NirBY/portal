@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header>
+    User Management
+    <div class="header-buttons-left">
+        <a href="/admin" class="header-button">Back to Admin Dashboard</a>
+    </div>
+</header>
+
+<section>
+    <h2>All Users</h2>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>Actions</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.username}"></td>
+            <td><a th:href="@{/admin/users/{username}(username=${user.username})}">Manage Roles</a></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

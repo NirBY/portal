@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Directory</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        function toggleVisibility(id) {
+            var element = document.getElementById(id);
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function copyLink(categoryId, environmentId, dataCenterId, linkId) {
+            // Construct the dynamic link to index.html with query parameters
+            const url = window.location.origin + window.location.pathname +
+                        `?category=${categoryId}&environment=${environmentId}&dataCenter=${dataCenterId}&link=${linkId}`;
+
+            // Copy the constructed link to clipboard
+            navigator.clipboard.writeText(url).then(() => {
+                alert("Link copied to clipboard!");
+
+                // Ensure all parent elements are visible
+                toggleVisibility('cat-' + categoryId);
+                toggleVisibility('env-' + environmentId);
+                toggleVisibility('zone-' + dataCenterId);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Function to expand the hierarchy based on URL parameters
+        function expandHierarchyFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const categoryId = params.get('category');
+            const environmentId = params.get('environment');
+            const dataCenterId = params.get('dataCenter');
+            const linkId = params.get('link');
+
+            if (categoryId) toggleVisibility('cat-' + categoryId);
+            if (environmentId) toggleVisibility('env-' + environmentId);
+            if (dataCenterId) toggleVisibility('zone-' + dataCenterId);
+            if (linkId) {
+                // Optionally scroll to the link or highlight it
+                const linkElement = document.getElementById('link-' + linkId);
+                if (linkElement) linkElement.scrollIntoView();
+            }
+        }
+
+        // Execute on page load to expand the hierarchy if parameters are present
+        window.onload = expandHierarchyFromUrl;
+    </script>
+</head>
+<body>
+<header>
+    Site Directory
+    <!-- Add the Admin Page button if the user has the ADMIN role -->
+    <div sec:authorize="hasRole('ROLE_ADMIN')" class="header-buttons-left">
+        <a href="/admin" class="header-button">Go to Admin Page</a>
+    </div>
+
+    <form th:action="@{/logout}" method="post" class="header-buttons-right">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input value="Logout" type="submit" class="header-button"/>
+    </form>
+
+</header>
+
+<div class="category-container">
+    <!-- Loop through categories and environments -->
+    <div th:each="category : ${categories}">
+        <div class="category" th:text="${category.name}"
+             th:onclick="'toggleVisibility(' + '\'cat-' + ${category.id} + '\')'"></div>
+        <div th:id="'cat-'+${category.id}" class="links">
+
+            <div th:each="environment : ${category.environments}">
+                <div class="environment" th:classappend="${environment.name == 'prod' ? ' prod' : ''}"
+                     th:text="${environment.name}"
+                     th:onclick="'toggleVisibility(' + '\'env-' + ${environment.id} + '\')'"></div>
+                <div th:id="'env-'+${environment.id}" class="links">
+
+                    <div th:each="dataCenter : ${environment.dataCenters}">
+                        <div class="zone" th:text="${dataCenter.name}"
+                             th:onclick="'toggleVisibility(' + '\'zone-' + ${dataCenter.id} + '\')'"></div>
+                        <div th:id="'zone-'+${dataCenter.id}" class="links">
+
+                            <div th:each="link : ${dataCenter.links}" class="link-item">
+                                <div class="link-header">
+                                    <h3 th:text="${link.title}" style="display: inline;"></h3>
+                                    <!-- Copy Link Button next to the title -->
+                                    <button th:onclick="'copyLink(\'' + ${category.id} + '\', \'' + ${environment.id} + '\', \'' + ${dataCenter.id} + '\', \'' + ${link.id} + '\')'"
+                                            style="display: inline; margin-left: 10px;">Copy Link
+                                    </button>
+                                </div>
+                                <p th:text="${link.description}"></p>
+                                <a th:href="${link.passwordLink}">Password</a>
+                                <a th:href="${link.url}" target="_blank">Open Link</a>
+                                <div th:if="${!#strings.isEmpty(link.imageAsBase64)}">
+                                    <img th:src="'data:image/png;base64,' + ${link.imageAsBase64}" alt="Link Image"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer>
+    &copy; 2024 Site Directory
+</footer>
+</body>
+</html>

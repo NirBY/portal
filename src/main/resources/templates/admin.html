@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        function toggleMenu() {
+            var element = document.getElementById("menu");
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function toggleVisibility(id) {
+            var element = document.getElementById(id);
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function confirmDelete(message, url) {
+            if (confirm(message)) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</head>
+<body>
+<header>
+    Admin Dashboard
+    <div class="menu-container">
+        <div class="menu-icon" onclick="toggleMenu()">&#9776;</div>
+        <div id="menu" class="dropdown-menu" style="display: none;">
+            <a href="/">Return to Index</a>
+            <a href="/admin/users">User Management</a>
+            <a href="/h2-console">H2 DB Console [jdbc:h2:file:./database/portal]</a>
+            <!-- Add more links here -->
+        </div>
+    </div>
+    <form th:action="@{/logout}" method="post" class="header-buttons-right">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input value="Logout" type="submit" class="header-button"/>
+    </form>
+</header>
+
+<div class="content">
+    <section>
+        <h2>Manage Categories</h2>
+        <form th:action="@{/admin/categories}" th:object="${newCategory}" method="post" class="inline-form">
+            <input type="text" th:field="*{name}" placeholder="Category Name" required/>
+            <button type="submit" class="inline-button" title="Add new category">+</button>
+        </form>
+
+        <!-- Collapsible Categories -->
+        <div th:each="category : ${categories}">
+            <div class="category">
+                <span th:text="${category.name} + ' - Rank: ' + ${category.rank} + ' (Click)'"
+                      th:onclick="'toggleVisibility(' + '\'cat-' + ${category.id} + '\')'"></span>
+                <span class="action-buttons">
+                                <!-- Decrease Rank -->
+            <form th:action="@{/admin/categories/rank/decrease}" method="post" class="inline-form"
+                  style="display:inline;">
+                <input type="hidden" name="categoryId" th:value="${category.id}"/>
+                <button type="submit" class="inline-button" title="Decrease Rank">&#9660;</button>
+            </form>
+
+                    <!-- Increase Rank -->
+            <form th:action="@{/admin/categories/rank/increase}" method="post" class="inline-form"
+                  style="display:inline;">
+                <input type="hidden" name="categoryId" th:value="${category.id}"/>
+                <button type="submit" class="inline-button" title="Increase Rank">&#9650;</button>
+            </form>
+                <button class="inline-button" title="Delete Environment"
+                        th:onclick="'confirmDelete(\'Are you sure you want to delete this category?\', \'/admin/categories/delete/'+${category.id}+'\')'">-</button>
+                <button class="inline-button" title="Add new Environment"
+                        th:onclick="'toggleVisibility(\'cat-' + ${category.id} + '-add\')'">+</button>
+            </span>
+            </div>
+            <div th:id="'cat-'+${category.id}" class="links">
+                <div th:each="environment : ${category.environments}">
+                    <div class="environment">
+                        <span th:text="${environment.name} + ' - (Click)'"
+                              th:onclick="'toggleVisibility(' + '\'env-' + ${environment.id} + '\')'"></span>
+                        <span class="action-buttons">
+                        <button class="inline-button" title="Delete Data Center"
+                                th:onclick="'confirmDelete(\'Are you sure you want to delete this environment?\', \'/admin/environments/delete/'+${environment.id}+'\')'">-</button>
+                        <button class="inline-button" title="Add new Data Center"
+                                th:onclick="'toggleVisibility(\'env-' + ${environment.id} + '-add\')'">+</button>
+                    </span>
+                    </div>
+                    <div th:id="'env-'+${environment.id}" class="links">
+
+                        <div th:each="dataCenter : ${environment.dataCenters}">
+                            <div class="zone">
+                                <span th:text="${dataCenter.name} + ' - (Click)'"
+                                      th:onclick="'toggleVisibility(' + '\'zone-' + ${dataCenter.id} + '\')'"></span>
+                                <span class="action-buttons">
+                                <button class="inline-button" title="Delete Link"
+                                        th:onclick="'confirmDelete(\'Are you sure you want to delete this data center?\', \'/admin/datacenters/delete/'+${dataCenter.id}+'\')'">-</button>
+                                <button class="inline-button" title="Add new Link"
+                                        th:onclick="'toggleVisibility(\'zone-' + ${dataCenter.id} + '-add\')'">+</button>
+                            </span>
+                            </div>
+                            <div th:id="'zone-'+${dataCenter.id}" class="links">
+
+                                <div th:each="link : ${dataCenter.links}" class="link-item">
+                                    <h3 th:text="${link.title}"></h3>
+                                    <p th:text="${link.description}"></p>
+                                    <a th:href="${link.passwordLink}">Password</a>
+                                    <a th:href="${link.url}" target="_blank">Open Link</a>
+                                    <button class="inline-button" title="Delete link"
+                                            th:onclick="'confirmDelete(\'Are you sure you want to delete this link?\', \'/admin/links/delete/'+${link.id}+'\')'">
+                                        -
+                                    </button>
+                                </div>
+
+                                <div th:id="'zone-'+${dataCenter.id}+'-add'" style="display:none;">
+                                    <form th:action="@{/admin/links(dataCenterId=${dataCenter.id})}"
+                                          th:object="${newLink}"
+                                          method="post" enctype="multipart/form-data" class="inline-form">
+                                        <input type="text" th:field="*{title}" placeholder="Link Title" required/>
+                                        <input type="text" th:field="*{url}" placeholder="Link URL" required/>
+                                        <input type="text" th:field="*{passwordLink}" placeholder="Password Link"/>
+                                        <textarea th:field="*{description}" placeholder="Description"></textarea>
+                                        <input type="file" name="imageFile" accept="image/*"/>
+                                        <button type="submit" class="inline-button">Add Link</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:id="'env-'+${environment.id}+'-add'" style="display:none;">
+                            <form th:action="@{/admin/datacenters(environmentId=${environment.id})}"
+                                  th:object="${newDataCenter}" method="post" class="inline-form">
+                                <input type="text" th:field="*{name}" placeholder="Data Center Name" required/>
+                                <button type="submit" class="inline-button">Add Data Center</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:id="'cat-'+${category.id}+'-add'" style="display:none;">
+                    <form th:action="@{/admin/environments(categoryId=${category.id})}" th:object="${newEnvironment}"
+                          method="post" class="inline-form">
+                        <input type="text" th:field="*{name}" placeholder="Environment Name" required/>
+                        <button type="submit" class="inline-button">Add Environment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer>
+    &copy; 2024 Site Directory
+</footer>
+</body>
+</html>

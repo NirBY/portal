@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User Roles</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        function confirmDelete(roleName, formElement) {
+            alert('Role:' + roleName);
+
+            if (roleName === 'ADMIN') {
+                alert("You cannot delete the ADMIN role.");
+                return false;
+            }
+
+            if (confirm("Are you sure you want to delete the " + roleName + " role?")) {
+                formElement.submit();
+            }else {
+                return false; // Prevent form submission if the user cancels
+            }
+        }
+    </script>
+</head>
+<body>
+<header>
+    Edit Roles for <span th:text="${user.username}"></span>
+    <div class="header-buttons-left">
+        <a href="/admin/users" class="header-button">Back to User Management</a>
+    </div>
+</header>
+
+<section>
+
+    <!-- Error Message Section -->
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+    <h2>Current Roles</h2>
+    <table>
+        <tr>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        <tr th:each="role : ${user.roles}">
+            <td th:text="${role.name}"></td>
+            <td>
+                <form th:action="@{/admin/users/{username}/removeRole(username=${user.username})}" method="post" onsubmit="return confirmDelete([[${role.name}]], this);">
+                    <input type="hidden" name="roleId" th:value="${role.id}"/>
+                    <button type="submit" class="button">Remove</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+    <h2>Add Role</h2>
+    <form th:action="@{/admin/users/{username}/addRole(username=${user.username})}" method="post">
+        <label for="role">Role:</label>
+        <select id="role" name="roleId" required>
+            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
+        </select>
+        <button type="submit" class="button">Add Role</button>
+    </form>
+</section>
+</body>
+</html>
