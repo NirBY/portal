@@ -2,7 +2,7 @@
 <table>
 <tr>
 <td>
-<div>A simple portal web app for joining all company websites in one place.</div>
+<div>Spring Boot project - A Portal for joining all company websites in one place.</div>
 </td>
 </tr>
 </table>
