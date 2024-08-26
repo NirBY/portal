@@ -58,6 +58,20 @@ public class SecurityConfig {
     @Value("${spring.ldap.password}")
     private String ldapPassword;
 
+    @Value("${app.security.users.username}")
+    private String user1Username;
+    @Value("${app.security.users.password}")
+    private String user1Password;
+    @Value("${app.security.users.roles}")
+    private String user1Roles;
+
+    @Value("${app.security.admins.username}")
+    private String admin1Username;
+    @Value("${app.security.admins.password}")
+    private String admin1Password;
+    @Value("${app.security.admins.roles}")
+    private String admin1Roles;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -133,15 +147,15 @@ public class SecurityConfig {
 
         // Create the in-memory UserDetailsService
         UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("admin123"))
-                .roles("ADMIN")
+                .username(admin1Username)
+                .password(passwordEncoder.encode(admin1Password))
+                .roles(admin1Roles)
                 .build();
 
         UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder.encode("password"))
-                .roles("USER")
+                .username(user1Username)
+                .password(passwordEncoder.encode(user1Password))
+                .roles(user1Roles)
                 .build();
 
         InMemoryUserDetailsManager inMemoryUserDetailsService = new InMemoryUserDetailsManager(admin, user);
